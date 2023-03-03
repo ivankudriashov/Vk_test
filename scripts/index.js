@@ -64,6 +64,13 @@ const timerNumbers = {
     '9': '27px 0',
 }
 
+function clearAllInterval() {
+    clearInterval(timerId);
+    clearInterval(timerId1);
+    clearInterval(timerId2);
+    clearInterval(timerId3);
+}
+
 const changeMinesCouter = () => {
     mines >= 100 ? minesStr = String(mines) : mines >= 10 ? minesStr = "0" + mines : minesStr = "00" + mines;
     bombs_num_1.style.backgroundPosition =  timerNumbers[`${minesStr[0]}`];
@@ -74,10 +81,10 @@ const changeMinesCouter = () => {
 const clear = () => {
 	gameOver = false;
     started = false;
+    mines = difficulty === 'normal' ? 40 : difficulty === 'easy' ? 10 : 99;
 	bombs = [];
 	numbers = [];
     sec = 0;
-    
     sec1 = 0;
     sec2 = 0;
     sec3 = 0;
@@ -86,10 +93,7 @@ const clear = () => {
 		tile.remove();
 	});
 
-    clearInterval(timerId);
-    clearInterval(timerId1);
-    clearInterval(timerId2);
-    clearInterval(timerId3);
+    clearAllInterval()
 	
 	printBoard();
 }
@@ -299,6 +303,7 @@ const checkVictory = () => {
 	if (win) {
         restartBtn.style.backgroundPosition = `58px 60px`;
 		gameOver = true;
+        clearAllInterval()
 	}
 }
 
@@ -309,10 +314,7 @@ const tick = () => {
     }
 
     if(gameOver) {
-        clearInterval(timerId);
-        clearInterval(timerId1);
-        clearInterval(timerId2);
-        clearInterval(timerId3);
+        clearAllInterval()
     }
 }
 
