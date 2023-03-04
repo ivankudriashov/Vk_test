@@ -7,8 +7,7 @@
     "build": "webpack --mode production",
     "dev": "webpack serve",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
-    "deployToServer": "npm run build && scp -Сr ./dist/* kudr9shov@51.250.105.21:/home/kudr9shov/Vk_test"
+    "deploy": "gh-pages -d dist"
   },
   "repository": {
     "type": "git",
