@@ -1,0 +1,42 @@
+{
+  "name": "sapper",
+  "version": "1.0.0",
+  "description": "Тестовое задание для стажировке в VK",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack serve",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
+    "deployToServer": "npm run build && scp -Сr ./dist/* kudr9shov@51.250.105.21:/home/kudr9shov/Vk_test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivankudriashov/Vk_test.git"
+  },
+  "author": "Ivan Kudriashov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ivankudriashov/Vk_test/issues"
+  },
+  "homepage": "https://github.com/ivankudriashov/Vk_test#readme",
+  "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "autoprefixer": "^10.3.3",
+    "babel-loader": "^8.2.2",
+    "clean-webpack-plugin": "^4.0.0",
+    "css-loader": "^6.2.0",
+    "cssnano": "^5.0.8",
+    "gh-pages": "^3.2.3",
+    "html-webpack-plugin": "^5.3.2",
+    "mini-css-extract-plugin": "^2.2.2",
+    "postcss-loader": "^6.1.1",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.1.0"
+  },
+  "dependencies": {
+    "core-js": "^3.17.1"
+  }
+}

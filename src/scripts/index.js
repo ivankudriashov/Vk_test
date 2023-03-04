@@ -1,5 +1,7 @@
 'use strict';
 
+import "../styles/index.css";
+
 let started = false;
 let gameOver = false;
 let difficulty = 'normal';
