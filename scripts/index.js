@@ -1,4 +1,4 @@
-console.clear();
+'use strict';
 
 let started = false;
 let gameOver = false;
@@ -26,16 +26,10 @@ const boardWrapper = document.querySelector('.board-wrap');
 const restartBtn = document.querySelector('.minesweeper-btn');
 const difficultyBtnsWrapper = document.querySelector('.fieldset');
 const difficultyBtnsLabel = difficultyBtnsWrapper.querySelectorAll('label');
-
 const border = document.querySelectorAll('.wrapper-border-vert');
 
-const timer_num_1 = document.getElementById("timer-num-1");
-const timer_num_2 = document.getElementById("timer-num-2");
-const timer_num_3 = document.getElementById("timer-num-3");
-
-const bombs_num_1 = document.getElementById("bombs-num-1");
-const bombs_num_2 = document.getElementById("bombs-num-2");
-const bombs_num_3 = document.getElementById("bombs-num-3");
+const timerNum = document.querySelectorAll(".js-timer-num");
+const bombsNum = document.querySelectorAll(".js-bombs-num");
 
 let bombs = [];
 let numbers = [];
@@ -62,7 +56,7 @@ const timerNumbers = {
     '7': '55px 0',
     '8': '41px 0',
     '9': '27px 0',
-}
+};
 
 function clearAllInterval() {
     clearInterval(timerId);
@@ -71,14 +65,14 @@ function clearAllInterval() {
     clearInterval(timerId3);
 }
 
-const changeMinesCouter = () => {
+function changeMinesCouter() {
     mines >= 100 ? minesStr = String(mines) : mines >= 10 ? minesStr = "0" + mines : minesStr = "00" + mines;
-    bombs_num_1.style.backgroundPosition =  timerNumbers[`${minesStr[0]}`];
-    bombs_num_2.style.backgroundPosition = timerNumbers[`${minesStr[1]}`];
-    bombs_num_3.style.backgroundPosition = timerNumbers[`${minesStr[2]}`];
+    bombsNum.forEach((e, index) => {
+        e.style.backgroundPosition =  timerNumbers[`${minesStr[index]}`];
+    });
 }
 
-const clear = () => {
+function clear() {
 	gameOver = false;
     started = false;
     mines = difficulty === 'normal' ? 40 : difficulty === 'easy' ? 10 : 99;
@@ -93,18 +87,17 @@ const clear = () => {
 		tile.remove();
 	});
 
-    clearAllInterval()
+    clearAllInterval();
 	
 	printBoard();
 }
 
-const printBoard = () => {
+function printBoard() {
     changeMinesCouter();
 
-
-    timer_num_1.style.backgroundPosition = timerNumbers[`0`];
-    timer_num_2.style.backgroundPosition = timerNumbers[`0`];
-    timer_num_3.style.backgroundPosition = timerNumbers[`0`];
+    timerNum.forEach(e => {
+        e.style.backgroundPosition = timerNumbers[`0`];
+    });
 
 	for (let i = 0; i < Math.pow(size, 2); i++) {
 		const tile = document.createElement('div');
@@ -127,11 +120,11 @@ const printBoard = () => {
 	document.documentElement.style.setProperty('--boardSize', `${boardSize * tileSize}px`);
 }
 
-const start = (e) => {
+function start(e) {
     timerId = setInterval(tick, 1000);
-    timerId1 = setInterval(tick1, 1000);
+    timerId1 = setInterval(tick1, 100000);
     timerId2 = setInterval(tick2, 10000);
-    timerId3 = setInterval(tick3, 100000);
+    timerId3 = setInterval(tick3, 1000);
 	
 	let x = 0;
 	let y = 0;
@@ -177,8 +170,10 @@ const start = (e) => {
 		tile.setAttribute('data-num', dataNum + 1);
 	});
 }
-const flag = (tile) => {
+
+function flag(tile) {
 	if (gameOver) return;
+
 	if (!tile.classList.contains('tile--checked')) {
 		if (!tile.classList.contains('tile--flagged') && !tile.classList.contains('tile--question') && mines !== 0) {
 			tile.style.backgroundPosition = '-33px 34px';
@@ -198,74 +193,81 @@ const flag = (tile) => {
 	}
 }
 
-const clickTile = (tile) => {
+function clickTile(elem) {
+    let tile = elem;
+
 	if (gameOver) return;
+
 	if (tile.classList.contains('tile--checked') || tile.classList.contains('tile--flagged') || tile.classList.contains('tile--question')) return;
+
 	let coordinate = tile.getAttribute('data-tile');
+    let coords = coordinate.split(',');
+    let x = parseInt(coords[0]);
+    let y = parseInt(coords[1]);
+
+    let num;
+
+    num = tile.getAttribute('data-num');
+
 	if (bombs.includes(coordinate)) {
 		endGame(tile);
-	} else {
-		let num = tile.getAttribute('data-num');
-		if (num != null) {
-			tile.classList.add('tile--checked');
-            tile.classList.add(`tile--num${num}`);
-			tile.style.backgroundPosition = `${numberIcons[parseInt(num) - 1]}`;
-			setTimeout(() => {
-				checkVictory();
-			}, 100);
-			return;
-		}
-		
-		checkTile(coordinate);
+	} else if (num != null) {
+        tile.classList.add('tile--checked');
+        tile.classList.add(`tile--num${num}`);
+        tile.style.backgroundPosition = `${numberIcons[parseInt(num) - 1]}`;
+            
+        checkVictory();
+
+        return;
+    } else {
+		let stack = [];
+
+        const checkTile = (x, y) => {
+            if(x >= 0 && x < size && y >= 0 && y < size) {
+                const tile = document.querySelector(`[data-tile="${x},${y}"`);
+
+                if (tile.classList.contains('tile--checked') || tile.classList.contains('tile--flagged') || tile.classList.contains('tile--question')) return;
+
+                stack.push([x, y]);
+            }
+        };
+
+        checkTile(x, y);
+
+        while(stack.length) {
+            const [x, y] = stack.pop();
+
+            const tile = document.querySelector(`[data-tile="${x},${y}"`);
+
+            num = tile.getAttribute('data-num');
+
+            if (num != null) {
+                tile.classList.add('tile--checked');
+                tile.classList.add(`tile--num${num}`);
+                tile.style.backgroundPosition = `${numberIcons[parseInt(num) - 1]}`;
+                    
+                checkVictory();
+        
+                continue;
+            } else {
+                tile.classList.add('tile--checked');
+                tile.style.backgroundPosition = `-17px 34px`;
+            }
+
+
+            checkTile(x + 1, y);
+            checkTile(x - 1, y);
+            checkTile(x, y + 1);
+            checkTile(x, y - 1);
+            checkTile(x + 1, y + 1);
+            checkTile(x + 1, y - 1);
+            checkTile(x - 1, y - 1);
+            checkTile(x - 1, y + 1);
+        }
 	}
-	tile.classList.add('tile--checked');
 }
 
-
-const checkTile = (coordinate) => {
-	let coords = coordinate.split(',');
-	let x = parseInt(coords[0]);
-	let y = parseInt(coords[1]);
-	
-	setTimeout(() => {
-		if (x > 0) {
-			let targetW = document.querySelector(`[data-tile="${x-1},${y}"`);
-			clickTile(targetW, `${x-1},${y}`);
-		}
-		if (x < boardSize - 1) {
-			let targetE = document.querySelector(`[data-tile="${x+1},${y}"`);
-			clickTile(targetE, `${x+1},${y}`);
-		}
-		if (y > 0) {
-			let targetN = document.querySelector(`[data-tile="${x},${y-1}"]`);
-			clickTile(targetN, `${x},${y-1}`);
-		}
-		if (y < boardSize - 1) {
-			let targetS = document.querySelector(`[data-tile="${x},${y+1}"]`);
-			clickTile(targetS, `${x},${y+1}`);
-		}
-		
-		if (x > 0 && y > 0) {
-			let targetNW = document.querySelector(`[data-tile="${x-1},${y-1}"`);
-			clickTile(targetNW, `${x-1},${y-1}`);
-		}
-		if (x < boardSize - 1 && y < boardSize - 1) {
-			let targetSE = document.querySelector(`[data-tile="${x+1},${y+1}"`);
-			clickTile(targetSE, `${x+1},${y+1}`);
-		}
-		
-		if (y > 0 && x < boardSize - 1) {
-			let targetNE = document.querySelector(`[data-tile="${x+1},${y-1}"]`);
-			clickTile(targetNE, `${x+1},${y-1}`);
-		}
-		if (x > 0 && y < boardSize - 1) {
-			let targetSW = document.querySelector(`[data-tile="${x-1},${y+1}"`);
-			clickTile(targetSW, `${x-1},${y+1}`);
-		}
-	}, 10);
-}
-
-const endGame = (clickedTile) => {
+function endGame(clickedTile) {
     restartBtn.style.backgroundPosition = `32px 60px`;
 	gameOver = true;
 	tiles.forEach(tile => {
@@ -294,7 +296,7 @@ const endGame = (clickedTile) => {
 	});
 }
 
-const checkVictory = () => {
+function checkVictory() {
 	let win = true;
 	tiles.forEach(tile => {
 		let coordinate = tile.getAttribute('data-tile');
@@ -303,48 +305,48 @@ const checkVictory = () => {
 	if (win) {
         restartBtn.style.backgroundPosition = `58px 60px`;
 		gameOver = true;
-        clearAllInterval()
+        clearAllInterval();
 	}
 }
 
-const tick = () => {
+function tick() {
     sec++;
     if (sec === 1000) {
         endGame();
     }
 
     if(gameOver) {
-        clearAllInterval()
+        clearAllInterval();
     }
 }
 
-const tick1 = () => {
+function tick1() {
     sec1++;
     if (sec1 === 10) {
         sec1 = 0;
     }
 
-    timer_num_3.style.backgroundPosition = timerNumbers[`${sec1}`];
+    timerNum[0].style.backgroundPosition = timerNumbers[`${sec1}`];
 }
 
-const tick2 = () => {
+function tick2() {
     sec2++;
     if (sec2 === 10) {
         sec2 = 0;
     }
-    timer_num_2.style.backgroundPosition = timerNumbers[`${sec2}`];
+    timerNum[1].style.backgroundPosition = timerNumbers[`${sec2}`];
 }
 
-const  tick3 = () => {
+function tick3()  {
     sec3++;
     if (sec3 === 10) {
         sec3 = 0;
     }
 
-    timer_num_1.style.backgroundPosition = timerNumbers[`${sec3}`];
+    timerNum[2].style.backgroundPosition = timerNumbers[`${sec3}`];
 }
 
-const randomInteger = (min, max) => {
+function randomInteger(min, max) {
     let rand = min + Math.random() * (max + 1 - min);
 
     return Math.floor(rand);

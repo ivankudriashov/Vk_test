@@ -91,10 +91,6 @@
 	background-position: 1px 34px;
 }
 
-.tile--checked {
-	background-position: -17px 34px;
-}
-
 .settings {
 	display: flex;
 	align-items: center;
